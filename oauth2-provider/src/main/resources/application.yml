@@ -1,0 +1,38 @@
+your-mysql-server: localhost:3306
+your-mysql-db: oauth2_db
+your-mysql-username: root
+your-mysql-password: password
+
+your-redis-host: localhost
+your-redis-port: 6379
+
+server:
+  port: 7070
+  servlet:
+    session:
+      cookie:
+        name: OAUTH2-PROVIDER-SESSID 
+  
+spring:
+  datasource:
+    platform: mysql
+    url: jdbc:mysql://${your-mysql-server}/${your-mysql-db}?userSSL=false
+    username: ${your-mysql-username}
+    password: ${your-mysql-password}
+    initialization-mode: always
+
+  redis:
+    host: ${your-redis-host}
+    port: ${your-redis-port}
+
+  session:
+    store-type: redis    
+    redis:    
+      namespace: OAUTH2-PROVIDER
+    
+logging:
+  level:
+    #org.springframework.jdbc: debug
+    org.springframework.security.oauth2: debug
+    #io.lettuce.core: debug
+      
