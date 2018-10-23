@@ -1,0 +1,33 @@
+my-setting:
+  #oauth2-server: http://oauth2svr.e01int.intra.hksfc.org.hk
+  oauth2-server: http://localhost:7070
+  
+server:
+  servlet:
+    session:
+      cookie:
+        name: OAUTH2-CLIENT
+  port: 8080
+  
+security:
+  oauth2:
+    client:
+      client-id: plain-client-2
+      client-secret: password
+      grant-type: authorization_code
+      scope:
+      #- read
+      - select
+      - update
+      user-authorization-uri: ${my-setting.oauth2-server}/oauth/authorize
+      access-token-uri: ${my-setting.oauth2-server}/oauth/token
+    resource:
+      user-info-uri: ${my-setting.oauth2-server}/oauth/userinfo
+      prefer-token-info: false
+    #sso:
+    #  login-path: /oauthlogin
+      
+logging:
+  level:
+    org.springframework.security.oauth2: debug
+    org.springframework.security.web: debug

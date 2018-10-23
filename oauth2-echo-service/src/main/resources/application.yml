@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: echo-service
+
+server:
+  port: 9090
+  
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+      
+security:
+  oauth2:
+    resource:
+      id: echo-service
+      #token-info-uri: http://localhost:7070/oauth/check_token
+      userInfoUri: http://localhost:7070/oauth/userinfo
+      preferTokenInfo: false
+      
+
+      
+logging:
+  level:
+    org.springframework.security: debug      
+    com.netflix.discovery: off  
