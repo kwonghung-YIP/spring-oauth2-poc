@@ -48,7 +48,9 @@ public class OAuth2ProviderConfig {
 			  .antMatcher("/oauth/userinfo")
 			    .authorizeRequests()
 			      .anyRequest()
-			        .authenticated();
+			        .authenticated()
+			  .and()
+			    .cors();
 			// @formatter:on
 		}
 		

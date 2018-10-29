@@ -48,6 +48,7 @@ public class BasicAuthConfig  extends WebSecurityConfigurerAdapter {
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		//source.registerCorsConfiguration("/login", configuration);
 		source.registerCorsConfiguration("/oauth/token", configuration);
+		source.registerCorsConfiguration("/oauth/userinfo", configuration);
 		return source;		
 	}
 	
