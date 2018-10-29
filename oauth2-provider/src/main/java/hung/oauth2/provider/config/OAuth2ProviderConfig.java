@@ -32,16 +32,13 @@ public class OAuth2ProviderConfig {
 	@Configuration
 	@EnableResourceServer
 	protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
-
+		
+		@Autowired
 		private TokenStore tokenStore;
 		
-		void setTokenStore(TokenStore tokenStore) {
-			this.tokenStore = tokenStore;
-		}
-
 		@Override
 		public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
-			//resources.tokenStore(this.tokenStore);
+			resources.tokenStore(this.tokenStore);
 		}
 		
 		@Override
@@ -73,11 +70,8 @@ public class OAuth2ProviderConfig {
 		@Autowired
 		private CorsConfigurationSource corsConfigurationSource;
 		
+		@Autowired
 		private TokenStore tokenStore;
-		
-		void setTokenStore(TokenStore tokenStore) {
-			this.tokenStore = tokenStore;
-		}
 		
 		@Override
 		public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
@@ -122,18 +116,23 @@ public class OAuth2ProviderConfig {
 	}
 
 	@Configuration
-	protected static class TokenStoreConfiguration {
+	@Profile("redis-token")
+	protected static class RedisTokenStoreConfiguration {
 
-		@Bean
-		@Profile("redis-token")
+		@Bean		
 		public TokenStore tokenStore(RedisConnectionFactory redisConnectionFactory) {
 			return new RedisTokenStore(redisConnectionFactory);
 		}
-			
+	}
+	
+	@Configuration
+	@Profile("jdbc-token")
+	protected static class JdbcTokenStoreConfiguration {
+
 		@Bean
-		@Profile("jdbc-token")	
 		public TokenStore tokenStore(DataSource dataSource) {
 			return new JdbcTokenStore(dataSource);
 		}	
 	}
+	
 }

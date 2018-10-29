@@ -1,11 +1,3 @@
-your-mysql-server: localhost:3306
-your-mysql-db: oauth2_db
-your-mysql-username: root
-your-mysql-password: password
-
-your-redis-host: localhost
-your-redis-port: 6379
-
 server:
   port: 7070
   servlet:
@@ -47,16 +39,16 @@ spring:
   profiles: mysql
   datasource:
     platform: mysql
-    url: jdbc:mysql://${your-mysql-server}/${your-mysql-db}?userSSL=false
-    username: ${your-mysql-username}
-    password: ${your-mysql-password}
+    url: jdbc:mysql://mysql:3306/mysql-db?userSSL=false
+    username: root
+    password: password
     initialization-mode: always
 
   redis:
-    host: ${your-redis-host}
-    port: ${your-redis-port}
+    host: redis
+    port: 6379
 
   session:
     store-type: redis    
     redis:    
-      namespace: OAUTH2-PROVIDER  
+      namespace: OAUTH2-PROVIDER
