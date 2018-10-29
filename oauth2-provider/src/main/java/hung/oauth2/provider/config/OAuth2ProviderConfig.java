@@ -3,7 +3,10 @@ package hung.oauth2.provider.config;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,6 +21,8 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.approval.JdbcApprovalStore;
 import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices;
+import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -28,14 +33,15 @@ public class OAuth2ProviderConfig {
 	@EnableResourceServer
 	protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
-		@Autowired
-		private RedisConnectionFactory redisConnectionFactory;
+		private TokenStore tokenStore;
 		
+		void setTokenStore(TokenStore tokenStore) {
+			this.tokenStore = tokenStore;
+		}
+
 		@Override
 		public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
-			RedisTokenStore redisTokenStore = new RedisTokenStore(redisConnectionFactory);
-			
-			resources.tokenStore(redisTokenStore);
+			//resources.tokenStore(this.tokenStore);
 		}
 		
 		@Override
@@ -57,9 +63,6 @@ public class OAuth2ProviderConfig {
 		
 		@Autowired
 		private DataSource dataSource;
-		
-		@Autowired
-		private RedisConnectionFactory redisConnectionFactory;
 
 		@Autowired
 		private AuthenticationManager authenticationManager;
@@ -69,6 +72,12 @@ public class OAuth2ProviderConfig {
 
 		@Autowired
 		private CorsConfigurationSource corsConfigurationSource;
+		
+		private TokenStore tokenStore;
+		
+		void setTokenStore(TokenStore tokenStore) {
+			this.tokenStore = tokenStore;
+		}
 		
 		@Override
 		public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
@@ -88,7 +97,8 @@ public class OAuth2ProviderConfig {
 		public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
 			JdbcAuthorizationCodeServices jdbcAuthCodeSvc = new JdbcAuthorizationCodeServices(dataSource);
 			JdbcApprovalStore jdbcApplStore = new JdbcApprovalStore(dataSource);
-			RedisTokenStore redisTokenStore = new RedisTokenStore(redisConnectionFactory);
+			//JdbcTokenStore jdbcTokenStore = new JdbcTokenStore(dataSource);
+			//RedisTokenStore redisTokenStore = new RedisTokenStore(redisConnectionFactory);
 			
 			// @formatter:off
 			//Reference: (Grant Types) https://projects.spring.io/spring-security-oauth/docs/oauth2.html			  
@@ -100,7 +110,7 @@ public class OAuth2ProviderConfig {
 			  .userDetailsService(userDetailsService)
 			  .authorizationCodeServices(jdbcAuthCodeSvc)
 			  .approvalStore(jdbcApplStore)
-			  .tokenStore(redisTokenStore);
+			  .tokenStore(this.tokenStore);
 			// @formatter:on
 		}
 		
@@ -108,7 +118,22 @@ public class OAuth2ProviderConfig {
 		public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 			clients.jdbc(dataSource);
 		}
-		
-	}
 	
+	}
+
+	@Configuration
+	protected static class TokenStoreConfiguration {
+
+		@Bean
+		@Profile("redis-token")
+		public TokenStore tokenStore(RedisConnectionFactory redisConnectionFactory) {
+			return new RedisTokenStore(redisConnectionFactory);
+		}
+			
+		@Bean
+		@Profile("jdbc-token")	
+		public TokenStore tokenStore(DataSource dataSource) {
+			return new JdbcTokenStore(dataSource);
+		}	
+	}
 }

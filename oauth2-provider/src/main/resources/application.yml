@@ -11,9 +11,40 @@ server:
   servlet:
     session:
       cookie:
-        name: OAUTH2-PROVIDER-SESSID 
-  
+        name: OAUTH2-PROVIDER-SESSID
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+        - beans
+    
+    
+logging:
+  level:
+    #org.springframework.jdbc: debug
+    org.springframework.security.oauth2: debug
+    #io.lettuce.core: debug
+
+---
 spring:
+  profile: hsql
+  datasource:
+    platform: hsql
+    url: jdbc:hsqldb:mem:.
+    username: SA
+    password: 
+    initialization-mode: always
+
+  session:
+    store-type: none    
+    redis:    
+      namespace: OAUTH2-PROVIDER    
+
+---
+spring:
+  profiles: mysql
   datasource:
     platform: mysql
     url: jdbc:mysql://${your-mysql-server}/${your-mysql-db}?userSSL=false
@@ -28,11 +59,4 @@ spring:
   session:
     store-type: redis    
     redis:    
-      namespace: OAUTH2-PROVIDER
-    
-logging:
-  level:
-    #org.springframework.jdbc: debug
-    org.springframework.security.oauth2: debug
-    #io.lettuce.core: debug
-      
+      namespace: OAUTH2-PROVIDER  
